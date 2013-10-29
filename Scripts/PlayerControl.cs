@@ -9,10 +9,9 @@ public class PlayerControl : MonoBehaviour {
 	public float jumpHeight = 4.0f;
 	public float distanceToWall;
 	public float distanceToGround;
-	public float dirAndInput;
 	// Private Character Properties
 	private RaycastHit hit;
-	private Vector3 velocity;
+	public Vector3 velocity;
 	private Vector3 c;
 	private Vector3 originalCentre;
 	private CapsuleCollider collider;
@@ -22,9 +21,9 @@ public class PlayerControl : MonoBehaviour {
 	private float h;
 	private float r;
 	private float skin = 0.07f;
-	private float currentSpeed;
-	public float xAxis;
-	public float direction;
+	public float currentSpeed;
+	private float xAxis;
+	private float direction;
 	// Components
 	private Animator animator;
 	// Player States
@@ -60,15 +59,12 @@ public class PlayerControl : MonoBehaviour {
 		switch (playerState){
 		case State.Standing:
 			Debug.Log("Standing");
-			// Player is making the character run
-			//if(direction != 0)	
-			//	transform.eulerAngles = (direction < 0) ? Vector3.up * 180 : Vector3.zero;	
-			//transform["Armature"].eulerAngles = (direction < 0) ? new Vector3(270, 180 ,0) : new Vector3(270, 0, 0);
+			// Check if Player is making the character run
 			if( xAxis != 0){
 				playerState = State.Running;
 				break;
 			}
-			// Player has jumped
+			// Check if Player has jumped
 			if(Input.GetButton("Jump")){
 				Jump();
 				break;
@@ -79,12 +75,10 @@ public class PlayerControl : MonoBehaviour {
 			break;
 		case State.Running:
 			Debug.Log("Running");
+			// Make the character turn depending on it's direction or check if the Player has stopped moving the character
 			if (xAxis != 0){
-				direction = Mathf.Sign(xAxis);
-				transform.eulerAngles = (direction < 0) ? Vector3.up * 180 : Vector3.zero;
-			}
-			// Check if Player has stoped the character
-			if(xAxis == 0){
+				TurnAround();
+			} else {
 				Stand();
 				break;
 			}
@@ -105,14 +99,12 @@ public class PlayerControl : MonoBehaviour {
 			break;
 		case State.Jumping:
 			Debug.Log("Jumping");
+			// Check if the Player has changed the direction of the jump
+			if (xAxis != 0)
+				TurnAround();
 			// Check if the Character has landed
 			if(Grounded()){
 				Stand();
-				break;
-			}
-			// Check if the Character hits a wall
-			if(CharacterHitsWall()){
-				playerState = State.Falling;
 				break;
 			}
 			CalculateHorizontalForce();
@@ -124,11 +116,14 @@ public class PlayerControl : MonoBehaviour {
 			break;
 		case State.Falling:
 			Debug.Log("Falling");
+			if (xAxis != 0)
+				TurnAround();
 			// Check if the Character has landed
 			if(Grounded()){
 				Stand();
 				break;
 			}
+			CalculateHorizontalForce();
 			// Set the Falling animation
 			animator.SetBool("isFalling", true);
 			break;
@@ -143,7 +138,14 @@ public class PlayerControl : MonoBehaviour {
 	/// Calculates the horizontal force.
 	/// </summary>
 	private void CalculateHorizontalForce(){
-        // Calculate how fast we should be moving
+        /*
+			// Check if the Character hits a wall
+			if(CharacterHitsWall()){
+				playerState = State.Falling;
+				break;
+			}
+		*/
+		// Calculate how fast we should be moving
 		// Check if the player is moving to the left or to the right
         Vector3 targetVelocity = new Vector3(0, 0, direction * xAxis);
         // Transforms direction from local space to world space. Then multiply by speed
@@ -175,13 +177,8 @@ public class PlayerControl : MonoBehaviour {
 	/// True if the character hits a wall.
 	/// </returns>
 	private bool CharacterHitsWall(){
-		/*for (int i = 0; i < 2; i++){
-			Vector3 rayDirection = transform.TransformDirection(Mathf.Sign(xAxis) * Vector3.forward);
-			Vector3 p = transform.position;
-			dirAndInput = ((direction > 0 && xAxis > 0) || (direction > 0 && xAxis < 0)) ? -1 : 1;
-			float y = p.y + c.y + (i-1) * h/4;
-			float z = p.z + dirAndInput * (r + skin); 
-			Debug.DrawRay(new Vector3(p.x, y, z), rayDirection, Color.yellow);
+		for (int i = 0; i < 2; i++){
+			Debug.DrawRay(transform.position + new Vector3(0, c.y + (i-1) * h/4, r + c.z + skin), transform.TransformDirection(Vector3.forward), Color.yellow);
 			if (Physics.Raycast(transform.position + new Vector3(0, c.y + (i-1) * h/4, r + c.z + skin), transform.TransformDirection(Vector3.forward), out hit, 1.0F)){
 	            	distanceToWall = hit.distance;
 					if(distanceToWall < skin){
@@ -190,12 +187,7 @@ public class PlayerControl : MonoBehaviour {
 				}
 	    	}
 		}
-		return false; 
-		*/
-		for (int i = 0; i < 2; i++){
-			Debug.DrawRay(new Vector3(p.x, y, z), rayDirection, Color.yellow);
-			Debug.DrawRay(new Vector3(p.x, y, z), rayDirection, Color.green);
-		}
+		return false;
 	}
 //***********************************************************************************************//
 //										HELPER FUNCTIONS
@@ -229,6 +221,13 @@ public class PlayerControl : MonoBehaviour {
 		animator.SetBool("isFalling", false);
 	}
 	/// <summary>
+	/// Turns the Character around.
+	/// </summary>
+	private void TurnAround(){
+		direction = Mathf.Sign(xAxis);
+		transform.eulerAngles = (direction < 0) ? Vector3.up * 180 : Vector3.zero;
+	}
+	/// <summary>
 	/// Sets the collider.
 	/// </summary>
 	/// <param name='height'>
@@ -248,11 +247,6 @@ public class PlayerControl : MonoBehaviour {
 		c = center * colliderScale;
 		h = height * colliderScale;
 		r = radius * colliderScale;
-		/*
-		c = center;
-		h = height;
-		r = radius;
-		*/
 	}
 	/// <summary>
 	/// Resets the collider.
