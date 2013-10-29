@@ -10,6 +10,7 @@ public class PlayerControl : MonoBehaviour {
 	public float distanceToWall;
 	public float distanceToGround;
 	// Private Character Properties
+	public bool grounded = false;
 	private RaycastHit hit;
 	public Vector3 velocity;
 	private Vector3 c;
@@ -75,6 +76,10 @@ public class PlayerControl : MonoBehaviour {
 			break;
 		case State.Running:
 			Debug.Log("Running");
+			// Move the character horizontally
+			CalculateHorizontalForce();
+			// Set the Running animation
+			animator.SetFloat("Speed", Mathf.Abs(currentSpeed));
 			// Make the character turn depending on it's direction or check if the Player has stopped moving the character
 			if (xAxis != 0){
 				TurnAround();
@@ -88,44 +93,40 @@ public class PlayerControl : MonoBehaviour {
 				break;
 			}
 			// Check if the Character it's not on the ground
-			if(!Grounded()){
+			if(!grounded){
 				playerState = State.Falling;
 				break;
 			}
-			// Move the character horizontally
-			CalculateHorizontalForce();
-			// Set the Running animation
-			animator.SetFloat("Speed", Mathf.Abs(currentSpeed));
 			break;
 		case State.Jumping:
 			Debug.Log("Jumping");
+			CalculateHorizontalForce();
+			// Set the Jumping animation
+			animator.SetBool("isJumping", true);
 			// Check if the Player has changed the direction of the jump
 			if (xAxis != 0)
 				TurnAround();
 			// Check if the Character has landed
-			if(Grounded()){
+			if(grounded){
 				Stand();
 				break;
 			}
-			CalculateHorizontalForce();
-			// Set the Jumping animation
-			animator.SetBool("isJumping", true);
 			break;
 		case State.Sliding:
 			Debug.Log("Sliding");
 			break;
 		case State.Falling:
 			Debug.Log("Falling");
-			if (xAxis != 0)
-				TurnAround();
-			// Check if the Character has landed
-			if(Grounded()){
-				Stand();
-				break;
-			}
 			CalculateHorizontalForce();
 			// Set the Falling animation
 			animator.SetBool("isFalling", true);
+			if (xAxis != 0)
+				TurnAround();
+			// Check if the Character has landed
+			if(grounded){
+				Stand();
+				break;
+			}
 			break;
 		}
 		// We apply gravity manually for more tuning control
@@ -217,8 +218,8 @@ public class PlayerControl : MonoBehaviour {
 	private void Stand() {
 		playerState = State.Standing;
 		// Set the Landing animation
-		animator.SetBool("isJumping", false);
 		animator.SetBool("isFalling", false);
+		animator.SetBool("isJumping", false);
 	}
 	/// <summary>
 	/// Turns the Character around.
@@ -260,10 +261,73 @@ public class PlayerControl : MonoBehaviour {
 	/// <summary>
 	/// Raises the collision stay event.
 	/// </summary>
-	/*void OnCollisionStay () {
-	    // If the character touches the ground then he is grounded
-		grounded = true;    
-	}*/
+	
+	void OnCollisionStay(Collision collisionInfo){
+		switch (collisionInfo.gameObject.name) {
+		case "Ground":
+			if(TouchingVertical("Ground", "down")){
+				grounded = true;
+			}
+			break;
+		case "MovingPlatform":
+			if(TouchingVertical("MovingPlatform", "down")){
+				grounded = true;
+				transform.parent = collisionInfo.transform;
+			}
+			break;
+		} 
+	}
+	
+	void OnCollisionEnter(Collision collisionInfo){
+		switch (collisionInfo.gameObject.name) {
+		case "Ground":
+			if(TouchingVertical("Ground", "down")){
+				grounded = true;
+			}
+			break;
+		case "MovingPlatform":
+			if(TouchingVertical("MovingPlatform", "down")){
+				grounded = true;
+				transform.parent = collisionInfo.transform;
+			}
+			break;
+		}
+	}
+	
+	void OnCollisionExit(Collision collisionInfo){
+		switch (collisionInfo.gameObject.name) {
+		case "Ground":
+			grounded = false;
+			break;
+		case "MovingPlatform":
+			grounded = false;
+			transform.parent = null;
+			break;
+		} 
+	}
+	
+	private bool TouchingSide(string platform) {
+		for(int i = 0; i < 3; i++){
+			Vector3 origin = transform.position + new Vector3(0, h/4 * (1+i), 0);
+			if (Physics.Raycast(origin, transform.TransformDirection(Vector3.forward), out hit, skin)){
+				if (hit.collider.gameObject.name == platform)
+					return true;
+			}
+		}
+		return false;
+	}
+	
+	private bool TouchingVertical(string platform, string upOrDown, float raySize = 0) {
+		float dir = (upOrDown == "up") ? 1 : -1;
+		for (int i = 0; i < 2; i++){
+			if (Physics.Raycast(transform.position + new Vector3(0, skin * colliderScale,  (i - 1) * r/2 ) , dir * transform.TransformDirection(Vector3.up), out hit, skin + raySize)){
+				if (hit.collider.gameObject.name == platform)
+					return true;
+    		} 	
+		}
+		return false;
+	}
+	
 	private bool Grounded(){
 		for (int i = 0; i < 3; i++){
 			Debug.DrawRay(transform.position + new Vector3(0, skin * colliderScale, -direction * (i - 1) * r), -transform.TransformDirection(Vector3.up), Color.red);	

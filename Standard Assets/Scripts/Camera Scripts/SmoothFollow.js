@@ -50,6 +50,7 @@ function LateUpdate () {
 	//transform.position -= currentRotation * Vector3.forward * distance;
 
 	// Set the height of the camera
+	transform.position.x = distance;
 	transform.position.z = target.position.z;
 	transform.position.y = currentHeight;
 	
