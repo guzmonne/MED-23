@@ -138,31 +138,27 @@ public class PlayerControl : MonoBehaviour {
 	/// Calculates the horizontal force.
 	/// </summary>
 	private void CalculateHorizontalForce(){
-        /*
-			// Check if the Character hits a wall
-			if(CharacterHitsWall()){
-				playerState = State.Falling;
-				break;
-			}
-		*/
-		// Calculate how fast we should be moving
-		// Check if the player is moving to the left or to the right
-        Vector3 targetVelocity = new Vector3(0, 0, direction * xAxis);
-        // Transforms direction from local space to world space. Then multiply by speed
-		targetVelocity = transform.TransformDirection(targetVelocity);
-        targetVelocity *= speed;
-		// We grab the current rigidbody velocity
-        velocity = rigidbody.velocity;
-		// We save the velocity in z to the currentSpeed variable
-		currentSpeed = rigidbody.velocity.z;
-        // Apply a force that attempts to reach our target velocity
-		Vector3 velocityChange = (targetVelocity - velocity);
-        // Since the movement is in 2D we don't need to applied it to the 'x' axis
-//		velocityChange.x = Mathf.Clamp(velocityChange.x, -maxVelocityChange, maxVelocityChange);
-        velocityChange.z = Mathf.Clamp(velocityChange.z, -maxVelocityChange, maxVelocityChange);
-        velocityChange.y = 0;
-		// Add an instant velocity change to the rigidbody, ignoring its mass.
-		rigidbody.AddForce(velocityChange, ForceMode.VelocityChange);
+		// Check if the Character hits a wall
+		if(!CharacterHitsWall()){
+			// Calculate how fast we should be moving
+			// Check if the player is moving to the left or to the right
+	        Vector3 targetVelocity = new Vector3(0, 0, direction * xAxis);
+	        // Transforms direction from local space to world space. Then multiply by speed
+			targetVelocity = transform.TransformDirection(targetVelocity);
+	        targetVelocity *= speed;
+			// We grab the current rigidbody velocity
+	        velocity = rigidbody.velocity;
+			// We save the velocity in z to the currentSpeed variable
+			currentSpeed = rigidbody.velocity.z;
+	        // Apply a force that attempts to reach our target velocity
+			Vector3 velocityChange = (targetVelocity - velocity);
+	        // Since the movement is in 2D we don't need to applied it to the 'x' axis
+	//		velocityChange.x = Mathf.Clamp(velocityChange.x, -maxVelocityChange, maxVelocityChange);
+	        velocityChange.z = Mathf.Clamp(velocityChange.z, -maxVelocityChange, maxVelocityChange);
+	        velocityChange.y = 0;
+			// Add an instant velocity change to the rigidbody, ignoring its mass.
+			rigidbody.AddForce(velocityChange, ForceMode.VelocityChange);
+		}
 	}
 	/// <summary>
 	/// Calculates the vertical force.
@@ -177,11 +173,15 @@ public class PlayerControl : MonoBehaviour {
 	/// True if the character hits a wall.
 	/// </returns>
 	private bool CharacterHitsWall(){
-		for (int i = 0; i < 2; i++){
-			Debug.DrawRay(transform.position + new Vector3(0, c.y + (i-1) * h/4, r + c.z + skin), transform.TransformDirection(Vector3.forward), Color.yellow);
-			if (Physics.Raycast(transform.position + new Vector3(0, c.y + (i-1) * h/4, r + c.z + skin), transform.TransformDirection(Vector3.forward), out hit, 1.0F)){
+		for (int i = 0; i < 3; i++){
+			//float dir = (direction < 0) ? -r : r;
+			Vector3 origin = transform.position + new Vector3(0, h/4 * (1+i), 0);
+			Debug.DrawRay(origin, transform.TransformDirection(Vector3.forward) * 2 * r, Color.yellow);
+			
+			//Debug.DrawRay(transform.position + new Vector3(0, c.y + (i-1) * h/4, r + c.z + skin), transform.TransformDirection(Vector3.forward), Color.yellow);
+			if (Physics.Raycast(origin, transform.TransformDirection(Vector3.forward), out hit, 2 * r)){
 	            	distanceToWall = hit.distance;
-					if(distanceToWall < skin){
+					if(distanceToWall < r){
 						playerState = State.Falling;
 						return true;
 				}
