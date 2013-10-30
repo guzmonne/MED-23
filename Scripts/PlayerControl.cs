@@ -9,10 +9,13 @@ public class PlayerControl : MonoBehaviour {
 	public float jumpHeight = 4.0f;
 	public float distanceToWall;
 	public float distanceToGround;
+	// Public Hidden Variables
+	[HideInInspector]
+	public float currentSpeed;
 	// Private Character Properties
-	public bool grounded = false;
+	//public bool grounded = false;
 	private RaycastHit hit;
-	public Vector3 velocity;
+	private Vector3 velocity;
 	private Vector3 c;
 	private Vector3 originalCentre;
 	private CapsuleCollider collider;
@@ -22,9 +25,9 @@ public class PlayerControl : MonoBehaviour {
 	private float h;
 	private float r;
 	private float skin = 0.07f;
-	public float currentSpeed;
 	private float xAxis;
 	private float direction;
+	private bool firstSlideFrame = true;
 	// Components
 	private Animator animator;
 	// Player States
@@ -92,8 +95,12 @@ public class PlayerControl : MonoBehaviour {
 				Jump();
 				break;
 			}
+			if(Input.GetButton("Slide") && Mathf.Abs(currentSpeed) > 5){
+				Slide();
+				break;
+			}
 			// Check if the Character it's not on the ground
-			if(!grounded){
+			if(!Grounded()){
 				playerState = State.Falling;
 				break;
 			}
@@ -107,13 +114,35 @@ public class PlayerControl : MonoBehaviour {
 			if (xAxis != 0)
 				TurnAround();
 			// Check if the Character has landed
-			if(grounded){
+			if(Grounded()){
 				Stand();
 				break;
 			}
 			break;
 		case State.Sliding:
 			Debug.Log("Sliding");
+			if(firstSlideFrame){
+				rigidbody.AddForce(Vector3.forward * Mathf.Sign(direction) * 10, ForceMode.Impulse);
+				firstSlideFrame = false;
+			}
+			if(TouchingVertical("any", "up", 1f)){
+				CalculateHorizontalForce(true);
+				Debug.Log("Me toca el bocho la concha de la lora!!!");
+			} else {
+				if(Mathf.Abs(rigidbody.velocity.z) < 3){
+					firstSlideFrame = true; 
+					Stand();
+					break;
+				}
+			}
+			/*if(!Grounded()){
+				playerState = State.Falling;
+				break;
+			}*/
+			/*if(!TouchingVertical("any", "up")){
+				Stand();
+				break;
+			}*/
 			break;
 		case State.Falling:
 			Debug.Log("Falling");
@@ -123,7 +152,7 @@ public class PlayerControl : MonoBehaviour {
 			if (xAxis != 0)
 				TurnAround();
 			// Check if the Character has landed
-			if(grounded){
+			if(Grounded()){
 				Stand();
 				break;
 			}
@@ -138,12 +167,13 @@ public class PlayerControl : MonoBehaviour {
 	/// <summary>
 	/// Calculates the horizontal force.
 	/// </summary>
-	private void CalculateHorizontalForce(){
+	private void CalculateHorizontalForce(bool constant = false){
 		// Check if the Character hits a wall
 		if(!CharacterHitsWall()){
 			// Calculate how fast we should be moving
 			// Check if the player is moving to the left or to the right
-	        Vector3 targetVelocity = new Vector3(0, 0, direction * xAxis);
+			float zTargetVelocity = (constant) ? 1 : (direction * xAxis);
+	        Vector3 targetVelocity = new Vector3(0, 0, zTargetVelocity);
 	        // Transforms direction from local space to world space. Then multiply by speed
 			targetVelocity = transform.TransformDirection(targetVelocity);
 	        targetVelocity *= speed;
@@ -217,9 +247,18 @@ public class PlayerControl : MonoBehaviour {
 	/// </summary>
 	private void Stand() {
 		playerState = State.Standing;
-		// Set the Landing animation
+		ResetCollider();
+		// Set the Standing animation
 		animator.SetBool("isFalling", false);
 		animator.SetBool("isJumping", false);
+		animator.SetBool("isSliding", false);
+	}
+	private void Slide() {
+		playerState = State.Sliding;
+		// Change the size of the Capsule
+		SetCollider(1.8f, 0.6f, new Vector3(0, 1.18f, -0.26f));
+		// Set the Sliding animation
+		animator.SetBool("isSliding", true);
 	}
 	/// <summary>
 	/// Turns the Character around.
@@ -264,43 +303,23 @@ public class PlayerControl : MonoBehaviour {
 	
 	void OnCollisionStay(Collision collisionInfo){
 		switch (collisionInfo.gameObject.name) {
-		case "Ground":
-			if(TouchingVertical("Ground", "down")){
-				grounded = true;
-			}
-			break;
 		case "MovingPlatform":
-			if(TouchingVertical("MovingPlatform", "down")){
-				grounded = true;
-				transform.parent = collisionInfo.transform;
-			}
+			transform.parent = collisionInfo.transform;
 			break;
 		} 
 	}
 	
 	void OnCollisionEnter(Collision collisionInfo){
 		switch (collisionInfo.gameObject.name) {
-		case "Ground":
-			if(TouchingVertical("Ground", "down")){
-				grounded = true;
-			}
-			break;
 		case "MovingPlatform":
-			if(TouchingVertical("MovingPlatform", "down")){
-				grounded = true;
-				transform.parent = collisionInfo.transform;
-			}
+			transform.parent = collisionInfo.transform;
 			break;
 		}
 	}
 	
 	void OnCollisionExit(Collision collisionInfo){
 		switch (collisionInfo.gameObject.name) {
-		case "Ground":
-			grounded = false;
-			break;
-		case "MovingPlatform":
-			grounded = false;
+		case "MovingPlatform":;
 			transform.parent = null;
 			break;
 		} 
@@ -320,8 +339,9 @@ public class PlayerControl : MonoBehaviour {
 	private bool TouchingVertical(string platform, string upOrDown, float raySize = 0) {
 		float dir = (upOrDown == "up") ? 1 : -1;
 		for (int i = 0; i < 2; i++){
-			if (Physics.Raycast(transform.position + new Vector3(0, skin * colliderScale,  (i - 1) * r/2 ) , dir * transform.TransformDirection(Vector3.up), out hit, skin + raySize)){
-				if (hit.collider.gameObject.name == platform)
+			Debug.DrawRay(transform.position + new Vector3(0, h,  (i - 1) * r/2 ) , (skin + raySize) * dir * transform.TransformDirection(Vector3.up), Color.green);	
+			if (Physics.Raycast(transform.position + new Vector3(0, h,  (i - 1) * r/2 ) , dir * transform.TransformDirection(Vector3.up), out hit, skin + raySize)){
+				if (platform == "any" || hit.collider.gameObject.name == platform)
 					return true;
     		} 	
 		}
