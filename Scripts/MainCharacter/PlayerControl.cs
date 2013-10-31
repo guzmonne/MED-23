@@ -89,11 +89,11 @@ public class PlayerControl : MonoBehaviour {
 				Jump();
 				break;
 			}
-			// Check if the player is shooting
+			/*// Check if the player is shooting
 			if(Input.GetButton("Fire")){
 				playerState = State.Shooting;
 				break;
-			}
+			}*/
 			break;
 		case State.Running:
 			Debug.Log("Running");
@@ -105,7 +105,7 @@ public class PlayerControl : MonoBehaviour {
 			// Move the character horizontally
 			CalculateHorizontalForce();
 			// Set the Running animation
-			animator.SetFloat("Speed", Mathf.Abs(currentSpeed));
+			//animator.SetFloat("Speed", Mathf.Abs(currentSpeed));
 			// Make the character turn depending on it's direction or check if the Player has stopped moving the character
 			if (xAxis != 0){
 				TurnAround();
@@ -121,18 +121,18 @@ public class PlayerControl : MonoBehaviour {
 			if(Input.GetButton("Slide") && framesTillAction > 10){
 				Slide();
 				break;
-			}
+			}/*
 			// Check if the player is shooting
 			if(Input.GetButton("Fire")){
 				playerState = State.Shooting;
 				break;
-			}
+			}*/
 			break;
 		case State.Jumping:
 			Debug.Log("Jumping");
 			CalculateHorizontalForce();
 			// Set the Jumping animation
-			animator.SetBool("isJumping", true);
+			//animator.SetBool("isJumping", true);
 			// Check if the Player has changed the direction of the jump
 			if (xAxis != 0)
 				TurnAround();
@@ -146,29 +146,23 @@ public class PlayerControl : MonoBehaviour {
 			Debug.Log("Sliding");
 			CalculateSlideForce();
 			break;
-		case State.Shooting:
+		/*case State.Shooting:
 			Debug.Log("Shooting");
 			// Check if the Character it's not on the ground
 			if(!grounded){
 				playerState = State.Falling;
 				break;
 			}
-			//	Set the Shooting animation
-			animator.SetBool("isShooting", true);
-			animator.SetFloat("Speed", Mathf.Abs(currentSpeed));
 			CalculateHorizontalForce();
 			// Check if the Player has changed the direction of the jump
 			if (xAxis != 0)
 				TurnAround();
 			// Check if Player has jumped
 			if(Input.GetButton("Jump") && framesTillAction > 10){
-				// Stop the shooting animation
-				animator.SetBool("isShooting", false);
 				Jump();
 				break;
 			}
 			if(Input.GetButton("Slide") && framesTillAction > 10){
-				animator.SetBool("isShooting", false);
 				Slide();
 				break;
 			}
@@ -177,12 +171,12 @@ public class PlayerControl : MonoBehaviour {
 				Stand();
 				break;
 			}
-			break;
+			break;*/
 		case State.Falling:
 			Debug.Log("Falling");
 			CalculateHorizontalForce();
 			// Set the Falling animation
-			animator.SetBool("isFalling", true);
+			//animator.SetBool("isFalling", true);
 			// Check if the Character has turned around
 			if (xAxis != 0)
 				TurnAround();
@@ -311,10 +305,10 @@ public class PlayerControl : MonoBehaviour {
 	private void Stand() {
 		playerState = State.Standing;
 		// Set the Standing animation
-		animator.SetBool("isFalling", false);
-		animator.SetBool("isJumping", false);
-		animator.SetBool("isSliding", false);
-		animator.SetBool("isShooting", false);
+		//animator.SetBool("isFalling", false);
+		//animator.SetBool("isJumping", false);
+		//animator.SetBool("isSliding", false);
+		//animator.SetBool("isShooting", false);
 		ResetCollider();
 	}
 	private void Slide() {
@@ -322,7 +316,7 @@ public class PlayerControl : MonoBehaviour {
 		// Change the size of the Capsule
 		SetCollider(1.8f, 0.6f, new Vector3(0, 1.18f, -0.26f));
 		// Set the Sliding animation
-		animator.SetBool("isSliding", true);
+		//animator.SetBool("isSliding", true);
 	}
 	/// <summary>
 	/// Turns the Character around.
