@@ -44,7 +44,7 @@ public class PlayerShootingController : MonoBehaviour {
 		if(speedTimer == shootingSpeed){
 			// The velocity of the bullet is given by the normalized targetPoint multiplied by a constant plus the velocity of the 
 			// character in z
-			velocity = mouseClickLocation.targetPoint.normalized * 40.0f + new Vector3(0, 0, Mathf.Abs(playerControl.currentSpeed));
+			velocity = mouseClickLocation.targetPoint.normalized * 80.0f + new Vector3(0, 0, Mathf.Abs(playerControl.currentSpeed));
 			// We instatiate a buller clone in the position of the cannon and we rotate it according to the 
 			// mouse angle tita got in the mouseClickLocation component. Also we need to take into acount the character direction
 			if(playerControl.direction < 0){

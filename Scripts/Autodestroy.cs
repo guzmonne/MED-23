@@ -19,10 +19,8 @@ public class Autodestroy : MonoBehaviour {
 		Destroy(transform.gameObject);
 	}
 	
-	void OnCollisionEnter(Collision collisionInfo){
-		if(collisionInfo.collider.tag != "Player"){
-			Instantiate(deathParticles, collisionInfo.contacts[0].point, Quaternion.identity);
-			Die();	
-		}
+	void OnCollisionEnter(Collision other){
+		Instantiate(deathParticles, other.contacts[0].point, Quaternion.identity);
+		Die();	
 	}
 }

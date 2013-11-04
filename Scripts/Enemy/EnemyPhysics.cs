@@ -12,7 +12,8 @@ public class EnemyPhysics : MonoBehaviour {
 	private bool init = true;
 	private float fa = 0;
 	private Vector3 direction;
-	private float distanceToTarget = 0;
+	[HideInInspector]
+	public float distanceToTarget = 0;
 	
 	void Start(){
 		path = GetComponent<FollowPath>();	

@@ -90,4 +90,11 @@ public class EnemyAI : MonoBehaviour {
 		// We set the onTarget value to true if it was found
 		onTarget = (foundCharacter) ? true : onTarget;
 	}
+	
+	void OnCollisionEnter(Collision other){
+		if(other.gameObject.tag == "Bullet"){
+			target = GameObject.FindGameObjectWithTag("Player").transform;
+			onTarget = true;
+		}
+	}
 }
