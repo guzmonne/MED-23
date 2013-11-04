@@ -3,7 +3,7 @@ using System.Collections;
 
 public class PlayerShootingController : MonoBehaviour {
 	// Public Properties
-	public int shootingSpeed = 20;
+	public int shootingSpeed = 10;
 	public Rigidbody bullet;
 	public Transform cannon;
 	// Hidden Properties
