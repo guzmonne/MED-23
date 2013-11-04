@@ -7,6 +7,8 @@ public class PlayerAnimatorController : MonoBehaviour {
 	private Animator animator;
 	private PlayerControl playerControl;
 	private State playerState;
+	private PlayerShootingController playerShootingController;
+	private MouseClickLocation mouseClickLocation;
 	
 	// Use this for initialization
 	void Awake () {
@@ -14,6 +16,10 @@ public class PlayerAnimatorController : MonoBehaviour {
 		animator = GetComponent<Animator>();
 		// Grab the PlayerControl component
 		playerControl = GetComponent<PlayerControl>();
+		// Grab the PlayerShootingController component
+		playerShootingController = GetComponent<PlayerShootingController>();
+		// Grab the MouseClickLocation component
+		mouseClickLocation = GetComponent<MouseClickLocation>();
 	}
 	
 	// Update is called once per frame
@@ -44,6 +50,12 @@ public class PlayerAnimatorController : MonoBehaviour {
 			// Set the Falling animation
 			animator.SetBool("isFalling", true);
 			break;
+		}
+		if(playerShootingController.isShooting){
+			animator.SetLayerWeight(1,1f);
+			animator.SetFloat("ShootingAngle", mouseClickLocation.tita);
+		} else {
+			animator.SetLayerWeight(1,0);
 		}
 	}
 }

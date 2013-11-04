@@ -1,19 +1,14 @@
 private var motor : CharacterMotor;
-public var animator : Animator;
-public var speed : float;
-
-private var isJumping : boolean;
 
 // Use this for initialization
 function Awake () {
 	motor = GetComponent(CharacterMotor);
-	animator = GetComponent(Animator);
 }
 
 // Update is called once per frame
 function Update () {
 	// Get the input vector from kayboard or analog stick
-	var directionVector = new Vector3(0, 0, Input.GetAxis("Horizontal"));
+	var directionVector = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
 	
 	if (directionVector != Vector3.zero) {
 		// Get the length of the directon vector and then normalize it
@@ -34,23 +29,7 @@ function Update () {
 	
 	// Apply the direction to the CharacterMotor
 	motor.inputMoveDirection = transform.rotation * directionVector;
-	if(isJumping){
-		animator.SetBool("isJumping", false);
-	}
-	if(Input.GetButton("Jump")){
-		animator.SetBool("isJumping", true);
-		isJumping = true;
-	} 
-		
 	motor.inputJump = Input.GetButton("Jump");
-	
-	speed = motor.movement.velocity.z;
-	animator.SetFloat("Speed", Mathf.Abs(speed));
-	animator.SetBool("isGrounded", !motor.jumping.jumping);
-
-	if(speed != 0){
-			//transform.eulerAngles = (speed < 0) ? Vector3.up * 180: Vector3.zero;
-	}
 }
 
 // Require a character controller to be attached to the same game object

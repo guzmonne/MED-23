@@ -8,11 +8,9 @@ public class MouseClickLocation : MonoBehaviour
 	public Vector3 targetPoint;		// Point in Global Coordinates where the Player clicked
  
 	// Private Variables
-	private Animator animator;
 	private PlayerControl playerControl;
 	
 	void Awake() {
-		animator = GetComponent<Animator>();
 		playerControl = GetComponent<PlayerControl>();
 	}
 	
@@ -52,9 +50,7 @@ public class MouseClickLocation : MonoBehaviour
 						else 
 							tita = tita = (Mathf.Atan(targetPoint.y/targetPoint.z)) * Mathf.Rad2Deg;
 					}
-				}
-				// Correct the angle depending on the character movement					
-				animator.SetFloat("ShootingAngle", tita);
+				}					
 			}
 		}
 	}
