@@ -49,13 +49,15 @@ public class EnemyPhysics : MonoBehaviour {
 	/// Moves the enemy to the target.
 	/// </summary>
 	public void MoveToTarget(){
-		// We set the direction to look at at the head of the player
-		direction = ai.target.position + new Vector3(0, 2.3f, 0);
-		distanceToTarget = Vector3.Distance(transform.position, direction);
-		// We separate the look and move tweens to make sure that the enemy doesn't crach into the Character but hovers over it.
-		iTween.LookUpdate(gameObject, iTween.Hash("looktarget", direction, "time", CalculateTime()));
-		if( distanceToTarget > 5.0f){
-			iTween.MoveUpdate(gameObject, iTween.Hash("position", direction , "time", CalculateTime()));
+		if(ai.target){
+			// We set the direction to look at at the head of the player
+			direction = ai.target.position + new Vector3(0, 2.3f, 0);
+			distanceToTarget = Vector3.Distance(transform.position, direction);
+			// We separate the look and move tweens to make sure that the enemy doesn't crach into the Character but hovers over it.
+			iTween.LookUpdate(gameObject, iTween.Hash("looktarget", direction, "time", CalculateTime()));
+			if( distanceToTarget > 5.0f){
+				iTween.MoveUpdate(gameObject, iTween.Hash("position", direction , "time", CalculateTime()));
+			}	
 		}
 	}
 	

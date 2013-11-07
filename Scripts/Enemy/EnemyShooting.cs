@@ -43,6 +43,8 @@ public class EnemyShooting : MonoBehaviour {
 			velocity = transform.forward * bulletSpeed;
 			// We instatiate a bullet clone inside the Enemy cannon
 			clone = (Rigidbody) Instantiate(bullet, cannon.position, transform.rotation);
+			// We set the Attack Damage of the bullet
+			clone.GetComponent<Bullet>().attackDamage = ai.attack;
 			// We apply the velocity
 			clone.velocity = velocity;
 			// We reset the speedTimer

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class EnemyAI : MonoBehaviour {
+public class EnemyAI : Entity {
 	// Public Variables
 	public Transform target;
 	public string pathName;
@@ -92,7 +92,7 @@ public class EnemyAI : MonoBehaviour {
 	}
 	
 	void OnCollisionEnter(Collision other){
-		if(other.gameObject.tag == "Bullet"){
+		if(other.transform && other.gameObject.tag == "Bullet"){
 			target = GameObject.FindGameObjectWithTag("Player").transform;
 			onTarget = true;
 		}

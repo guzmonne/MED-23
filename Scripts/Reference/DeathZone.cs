@@ -12,7 +12,7 @@ public class DeathZone : MonoBehaviour{
 		iTween.CameraFadeTo(iTween.Hash("amount",.6,"time",.05));
 		iTween.CameraFadeTo(iTween.Hash("amount",0,"time",1.6,"delay",.05,"easetype","linear"));
 		other.rigidbody.Sleep();
-		other.transform.position=new Vector3(0,8,0);
+		other.transform.position=new Vector3(-0.4f,4,-52);
 		other.rigidbody.velocity=Vector3.zero;
 		other.rigidbody.WakeUp();
 	}

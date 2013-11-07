@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 public class Ragdoll : MonoBehaviour {
 	public float timer = 0;
+	public float lifetime = 5;
 	public bool isTiming = false;
 	private List<Transform> poseBones = new List<Transform>(); 	
 	private List<Transform> ragdollBones = new List<Transform>();
@@ -12,10 +13,9 @@ public class Ragdoll : MonoBehaviour {
 		if (isTiming){
 			timer += Time.deltaTime;	
 		}
-		if(timer > 3){
+		if(timer > lifetime){
 			isTiming = false;
-			Destroy(gameObject);	
-			GameObject.Find("__GameManager").SendMessage("GameOver");
+			Destroy(gameObject);
 		}
 	}
 //***********************************************************************************************//

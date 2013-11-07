@@ -3,7 +3,7 @@ using System.Collections;
 
 public class PlayerShootingController : MonoBehaviour {
 	// Public Properties
-	public int shootingSpeed = 10;
+	public int shootingSpeed = 5;
 	public Rigidbody bullet;
 	public Transform cannon;
 	// Hidden Properties
@@ -21,21 +21,23 @@ public class PlayerShootingController : MonoBehaviour {
 		// Get necessary components
 		mouseClickLocation = GetComponent<MouseClickLocation>();
 		playerControl = GetComponent<PlayerControl>(); 
+		speedTimer = shootingSpeed;
 	}
 	
 	// Update is called once per frame
 	void FixedUpdate () {
+		speedTimer = (speedTimer == shootingSpeed) ? shootingSpeed : (speedTimer + 1); 
 		// If the mouse button is pressed we shoot
 		if (Input.GetMouseButton(0)) {
 			isShooting = true;
 			// We increment the speedTimer until it matches the originalSpeed. It needs to be set here to make sure
 			// that the hand animation has finished before we start shooting
-			speedTimer = (speedTimer == shootingSpeed) ? shootingSpeed : (speedTimer + 1); 
+			//speedTimer = (speedTimer == shootingSpeed) ? shootingSpeed : (speedTimer + 1); 
 			Shoot();
 		} else {
 			// We reset the timer
 			isShooting = false;
-			speedTimer = 0;
+			//speedTimer = 0;
 		}
 	}
 	
@@ -55,6 +57,8 @@ public class PlayerShootingController : MonoBehaviour {
 			} else {
 				clone = (Rigidbody) Instantiate(bullet, cannon.position, Quaternion.AngleAxis(mouseClickLocation.tita, Vector3.left));
 			}
+			// We set the Attack Damage of the bullet
+			clone.GetComponent<Bullet>().attackDamage = playerControl.attack;
 			// We apply the velocity
 			clone.velocity = velocity;
 			// We reset the speedTimer
